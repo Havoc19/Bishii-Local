@@ -429,7 +429,7 @@ function Room({ id, r, seats, wallet, now, b, ens, celebrate }) {
         <div>
           <h2 style={{ marginBottom: 4 }}>Room</h2>
           <div style={{ fontSize: 26, fontWeight: 700 }} className="grad">{r.name}.{PARENT}</div>
-          <div className="mut mono" style={{ fontSize: 12 }}>foreman {r.foreman.slice(0, 8)}… · earns {r.commissionBps / 100}% per pot</div>
+          <div className="mut mono" style={{ fontSize: 12 }}>foreman {r.foreman.slice(0, 8)}… · organiser, earns reputation not fees</div>
         </div>
         <div className="row">
           <span className="pill">{usd(r.instalment)} × {r.size}</span>
@@ -484,13 +484,11 @@ function Room({ id, r, seats, wallet, now, b, ens, celebrate }) {
                 <div style={{ flexGrow: pct(nowAmt), background: "var(--ok)" }}>{pct(nowAmt) > 12 ? `NOW ${usd(nowAmt)}` : ""}</div>
                 <div style={{ flexGrow: pct(held), background: "var(--acc)" }}>{pct(held) > 12 ? `HELD ${usd(held)}` : ""}</div>
                 <div style={{ flexGrow: pct(discount), background: "var(--pink)" }}>{pct(discount) > 8 ? "DIVIDEND" : ""}</div>
-                <div style={{ flexGrow: pct(commission) || 0.001, background: "var(--vio)" }} />
               </div>
               <div className="row mono" style={{ fontSize: 12, marginTop: 8, gap: 16 }}>
                 <span className="ok">● you get now {usd(nowAmt)}</span>
                 <span className="acc">● held, unlocks as you pay {usd(held)}</span>
                 <span className="pk">● to other members {usd(discount)}</span>
-                <span style={{ color: "var(--vio)" }}>● foreman {usd(commission)}</span>
               </div>
               <div className="mut" style={{ fontSize: 12, marginTop: 6 }}>backing {usd(backing)} vs still owe {usd(owe)}: you can only take out what's backed.</div>
               <button style={{ marginTop: 12 }} disabled={mine.paidRound < r.round} onClick={() => b("bid", [BigInt(id), bps], `bid ${bps / 100}%`)}>
@@ -519,7 +517,7 @@ function Gauge({ level }) {
 }
 
 function Create({ b, ens, disabled, roomCount }) {
-  const [f, setF] = useState({ name: "", instalment: "20", size: 4, roundLen: 120, maxBid: 30, commission: 2, gFee: 2, deposit: true, backing: 2, gAmt: "40" });
+  const [f, setF] = useState({ name: "", instalment: "1", size: 4, roundLen: 120, maxBid: 30, gFee: 2, deposit: true, backing: 2, gAmt: "40" });
   const set = (k) => (e) => setF({ ...f, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value });
   const level = Number(f.backing) === 2 ? 2 : Number(f.backing) === 1 || f.deposit ? 1 : 0;
   const safety = ["Open seats: winners get little upfront, the rest unlocks as they pay", "Partly backed: winners get some upfront", "Fully backed: winners get the whole pot upfront"][level];
@@ -538,7 +536,6 @@ function Create({ b, ens, disabled, roomCount }) {
             <label>Per round ($)<input value={f.instalment} onChange={set("instalment")} size={5} /></label>
             <label>Round (sec)<input value={f.roundLen} onChange={set("roundLen")} size={5} /></label>
             <label>Max bid %<input value={f.maxBid} onChange={set("maxBid")} size={3} /></label>
-            <label>Your fee %<input value={f.commission} onChange={set("commission")} size={3} /></label>
             <label>Guarantor fee %<input value={f.gFee} onChange={set("gFee")} size={3} /></label>
           </div>
           <label style={{ marginTop: 14 }}>Members
@@ -563,7 +560,7 @@ function Create({ b, ens, disabled, roomCount }) {
         style={{ marginTop: 18, fontSize: 16, padding: "14px 22px" }}
         disabled={disabled || !f.name}
         onClick={async () => {
-          const ok = await b("createRoom", [f.name, parseUnits(f.instalment, 6), Number(f.size), Number(f.roundLen), Math.round(f.maxBid * 100), Math.round(f.commission * 100), Math.round(f.gFee * 100), f.deposit, Number(f.backing), parseUnits(f.gAmt || "0", 6)], `${f.name}.${PARENT} created`);
+          const ok = await b("createRoom", [f.name, parseUnits(f.instalment, 6), Number(f.size), Number(f.roundLen), Math.round(f.maxBid * 100), 0, Math.round(f.gFee * 100), f.deposit, Number(f.backing), parseUnits(f.gAmt || "0", 6)], `${f.name}.${PARENT} created`);
           if (ok) ens(f.name, null, { "bishi.rules": `${f.instalment}USDC x${f.size}, ${BACKING[f.backing]}${f.deposit ? ", deposit" : ""}`, "bishi.foreman": "true", "bishi.room": String(roomCount) });
         }}
       >

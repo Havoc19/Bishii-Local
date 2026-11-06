@@ -31,7 +31,7 @@ Built at ETHGlobal Mumbai 2026.
 
 | Who | What they do | What they risk / earn |
 |---|---|---|
-| **Foreman** | Creates a room `bkc.bishii.eth`, sets the rules | Earns a commission on every pot (max 5%); their ENS name carries their record |
+| **Foreman** | Creates a room `bkc.bishii.eth`, sets the rules | Takes no fee: the guarantors carry the risk, so they get paid. The foreman earns reputation: their ENS name carries every circle they ran |
 | **Member** | Joins a room, pays each round, bids a discount to get the pot early | Bid discount is paid as dividends to the patient members |
 | **Guarantor** | A *different* verified human who backs a member's seat | Locks a stake, earns a fee on every instalment that member pays |
 
@@ -51,17 +51,17 @@ Built at ETHGlobal Mumbai 2026.
 backing     = your deposit + your guarantor's stake
 still owe   = rounds left × instalment
 held back   = max(0, still owe − backing)
-you get now = pot − your discount − commission − held back
+you get now = pot − your discount − held back
 ```
 
-Example: 4 members, $20 a round, pot $80. Riya wins round 1 with a 10% bid (discount $8, commission $1.60).
+Example: 4 members, $20 a round, pot $80. Riya wins round 1 with a 10% bid (discount $8, paid as dividends to the other 3).
 She still owes $60.
 
 | Room rules | Backing | Held | Riya gets now |
 |---|---|---|---|
-| Full guarantor | $60 | $0 | **$70.40** |
-| Deposit + $20 guarantor | $40 | $20 | **$50.40**, plus the rest as she pays |
-| Open room, no deposit | $0 | $60 | **$10.40**, plus $20 each round she pays |
+| Full guarantor | $60 | $0 | **$72** |
+| Deposit + $20 guarantor | $40 | $20 | **$52**, plus the rest as she pays |
+| Open room, no deposit | $0 | $60 | **$12**, plus $20 each round she pays |
 
 So every room type is safe from the runaway problem; stronger backing just means more cash upfront.
 
@@ -77,7 +77,7 @@ Their **World ID is flagged forever**: a new wallet carries the same World ID nu
 |---|---|---|
 | **World: Best Use of IDKit** | One seat per human; guarantor must be a different human; defaulter can't return with a new wallet | One person fills a room with fake bidders, guarantees themselves, and resets bad history with a fresh wallet |
 | **ENS: Best Use of ENSv2** | `bkc.bishii.eth` is the room/foreman; `riya.bkc.bishii.eth` is a seat; text records hold the rules and record | Rooms are anonymous numbers; nobody can check a foreman's history before trusting them |
-| **Arc: Advanced Stablecoin Logic** | USDC escrow, bid auction, dividend splits, commission and guarantor fees, held-back payouts, default handling | No dollar-stable money for savings |
+| **Arc: Advanced Stablecoin Logic** | USDC escrow, bid auction, dividend splits, guarantor fees, held-back payouts, default handling | No dollar-stable money for savings |
 
 **Credential choice (World):** `proofOfHuman` (Orb), because real money and one-seat-per-human need the strongest
 uniqueness. The demo uses World's simulator in `staging`.
@@ -150,7 +150,7 @@ You (browser)          Backend (/api/verify)                 Arc contract
 
 **Foreman**
 1. Connect wallet → Verify with World ID.
-2. Create room: name `bkc`, instalment, members, round length, max discount, commission, guarantor fee,
+2. Create room: name `bkc`, instalment, members, round length, max discount, guarantor fee,
    deposit on/off, backing type. The page shows the room's safety level live.
 3. `bkc.bishii.eth` is created and starts building a record.
 
@@ -182,7 +182,7 @@ You (browser)          Backend (/api/verify)                 Arc contract
 1. "Bishi runs on trust between people who know each other. We made it work between strangers."
 2. Foreman creates `bkc.bishii.eth` (full guarantor, 4 seats, 2-minute rounds).
 3. Judges verify with World ID and take seats; guarantors back them.
-4. Round 1: a judge bids 10%. The slider shows $70.40 now, $0 held. Close round: payout + dividends land.
+4. Round 1: a judge bids 10%. The slider shows $72 now, $0 held. Close round: payout + dividends land.
 5. Round 2: the winner doesn't pay. Close round: their guarantor's stake covers the circle, and their World ID is flagged.
 6. They try again with a new wallet: rejected. "New wallet, same human. No escape."
 7. Show the same attack against Yield Circle's contract: the winner walks away with profit.
@@ -211,5 +211,6 @@ and put that wallet's key in `ENS_PK`.
 - Bids are open, not sealed. Commit-reveal is the next step.
 - Guarantor stakes unlock at the end of the circle, not gradually as exposure falls.
 - ENS names are mirrored from Arc by our backend. Next step: a resolver that reads seats straight from Arc (CCIP-Read).
+- No foreman fee yet. The contract supports a commission (capped at 5%); we keep it at 0% until foremen stake a bond.
 - Chit funds are regulated in India (Chit Funds Act 1982); a real launch needs registration. The 30% bid cap and 5%
   commission cap follow common practice.
