@@ -1,12 +1,17 @@
 {
   "name": "bishi-app",
   "private": true,
-  "scripts": { "dev": "next dev", "build": "next build", "start": "next start" },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
   "dependencies": {
+    "@ensdomains/cli": "https://pkg.pr.new/ensdomains/ens-cli/@ensdomains/cli@main",
+    "@worldcoin/idkit": "4.1.8",
     "next": "14.2.15",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "viem": "2.21.25",
-    "@worldcoin/idkit": "4.1.8"
+    "viem": "2.21.25"
   }
 }
