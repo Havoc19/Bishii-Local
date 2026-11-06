@@ -177,7 +177,7 @@ export default function Home() {
       </div>
 
       <div style={{ marginTop: 26 }}>
-        <h1>Bishi with <span className="grad">strangers</span>,<br />made safe.</h1>
+        <h1>Bishii with <span className="grad">strangers</span>,<br />made safe.</h1>
         <p className="mut" style={{ maxWidth: 620, fontSize: 17 }}>
           Board a savings circle like a Mumbai local. Every seat is a real human. Every winner is backed.
           Run with the pot and the circle still gets paid. And you never come back.
