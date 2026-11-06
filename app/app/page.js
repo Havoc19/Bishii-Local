@@ -677,7 +677,7 @@ function Create({ b, ens, disabled, roomCount }) {
             <label>Guarantor fee % (≤10)<input type="number" min="0" max="10" value={f.gFee} onChange={(e) => setF({ ...f, gFee: Math.min(10, Math.max(0, Number(e.target.value))) })} style={{ width: 70 }} /></label>
           </div>
           <label style={{ marginTop: 14 }}>Members
-            <div className="seg">{[4, 6, 8, 10].map((n) => <button key={n} className={Number(f.size) === n ? "on" : ""} onClick={() => setF({ ...f, size: n })}>{n}</button>)}</div>
+            <div className="seg">{[2, 4, 6, 8, 10].map((n) => <button key={n} className={Number(f.size) === n ? "on" : ""} onClick={() => setF({ ...f, size: n })}>{n}</button>)}</div>
           </label>
           <label style={{ marginTop: 14 }}>Who can board
             <div className="seg">{BACKING.map((x, i) => <button key={i} className={Number(f.backing) === i ? "on" : ""} onClick={() => setF({ ...f, backing: i })}>{BICON[i]} {x}</button>)}</div>
