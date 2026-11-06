@@ -213,5 +213,6 @@ and put that wallet's key in `ENS_PK`.
 - Guarantor stakes unlock at the end of the circle, not gradually as exposure falls.
 - ENS names are mirrored from Arc by our backend. Next step: a resolver that reads seats straight from Arc (CCIP-Read).
 - No foreman fee yet. The contract supports a commission (capped at 5%); we keep it at 0% until foremen stake a bond.
+- **Demo personas:** World's v4 simulator currently gives every browser the same test identity, so for the multi-person demo two extra wallets (B and C) were registered as separate test humans directly by the verifier (`registerHuman`). The foreman's own World ID flow in the demo is real (simulator proof checked by World's API).
 - Chit funds are regulated in India (Chit Funds Act 1982); a real launch needs registration. The 30% bid cap and 5%
   commission cap follow common practice.

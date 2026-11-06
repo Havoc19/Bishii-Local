@@ -19,6 +19,7 @@ export async function POST(req) {
   if (result?.environment !== expectedEnv) return Response.json({ error: "wrong environment" }, { status: 400 });
   // The proof's signal must be this wallet, so a proof can't be replayed for someone else's wallet.
   const item = result?.responses?.[0];
+  console.log("[verify]", JSON.stringify({ wallet, protocol: result?.protocol_version, env: result?.environment, responses: (result?.responses || []).map((r) => ({ id: r.identifier, schema: r.issuer_schema_id, nullifier: String(r.nullifier).slice(0, 18) })) }));
   if (!item?.nullifier) return Response.json({ error: "no proof" }, { status: 400 });
   if (!item.signal_hash || BigInt(item.signal_hash) !== BigInt(hashSignal(wallet.toLowerCase())))
     return Response.json({ error: "proof is for a different wallet" }, { status: 400 });
