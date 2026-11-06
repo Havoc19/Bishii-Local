@@ -28,6 +28,10 @@ export default function Home() {
   const [bal, setBal] = useState(0n);
   const [rooms, setRooms] = useState([]);
   const [sel, setSel] = useState(null);
+  useEffect(() => { // deep link from a guarantor request: /?room=0&seat=1
+    const q = new URLSearchParams(window.location.search).get("room");
+    if (q !== null) { setSel(Number(q)); setTimeout(() => document.getElementById("room")?.scrollIntoView({ behavior: "smooth" }), 800); }
+  }, []);
   const [allSeats, setAllSeats] = useState([]);
   const seats = (sel !== null && allSeats[sel]) || [];
   const [rp, setRp] = useState(null);
@@ -415,6 +419,9 @@ function Room({ id, r, seats, wallet, now, b, ens, celebrate }) {
   const [seatName, setSeatName] = useState("");
   const wonRef = useRef(null);
   const me = seats.findIndex((s) => wallet && s.member.toLowerCase() === wallet.toLowerCase());
+  const stakeFor = r.backing === 2 ? BigInt(r.size - 1) * r.instalment : r.guarantorAmount;
+  const shareLink = typeof window !== "undefined" ? `${window.location.origin}/?room=${id}&seat=${me}` : "";
+  const focusSeat = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("room") === String(id) ? Number(new URLSearchParams(window.location.search).get("seat")) : -1;
   const mine = me >= 0 ? seats[me] : null;
   const active = r.round >= 1 && r.round <= r.size;
   const ended = active && now >= Number(r.start) + r.round * r.roundLen;
@@ -458,19 +465,30 @@ function Room({ id, r, seats, wallet, now, b, ens, celebrate }) {
                 <span style={{ width: 10, height: 10, borderRadius: 3, background: s.defaulted ? "#ff4d5e" : COLORS[i], boxShadow: `0 0 8px ${COLORS[i]}` }} />
                 <span>seat {i}{i === me ? " (you)" : ""}</span>
                 <span className="mut">{s.member.slice(0, 6)}…</span>
-                {s.guarantor !== ZERO && <span className="cy">🛡 {usd(s.stake)}</span>}
+                {s.guarantor !== ZERO && <span className="cy">🛡 backed {usd(s.stake)}</span>}
+                {r.backing > 0 && s.guarantor === ZERO && <span className="acc">⚠️ needs guarantor</span>}
                 {s.deposit > 0n && <span className="acc">💰 {usd(s.deposit)}</span>}
                 {s.held > 0n && <span className="pk">⏳ {usd(s.held)}</span>}
                 {s.won && <span className="ok">★ won</span>}
                 {s.defaulted && <span className="bad">✕ defaulted · flagged forever</span>}
                 {r.round === 0 && r.backing > 0 && s.guarantor === ZERO && i !== me && (
-                  <button className="ghost" style={{ padding: "4px 10px" }} onClick={() => b("guarantee", [BigInt(id), i], `guaranteed seat ${i}`)}>back this seat</button>
+                  <button className={focusSeat === i ? "hot" : "ghost"} style={{ padding: "4px 10px" }} onClick={() => b("guarantee", [BigInt(id), i], `guaranteed seat ${i}`)}>🛡 Back this seat · stake {usd(stakeFor)}</button>
                 )}
               </div>
             ))}
             {seats.length < r.size && <div className="mut">{r.size - seats.length} empty seat(s)</div>}
           </div>
 
+          {mine && r.round === 0 && r.backing > 0 && mine.guarantor === ZERO && (
+            <div className="cap" style={{ marginTop: 14, borderLeftColor: "var(--pink)" }}>
+              <b>Your seat needs a guarantor.</b> Ask someone you trust (a different verified human, not in this room) to back you with a{" "}
+              <b>{usd(stakeFor)}</b> stake. They earn {r.guarantorFeeBps / 100}% of every instalment you pay, and get the stake back when the circle ends.
+              <div className="row" style={{ marginTop: 8 }}>
+                <input readOnly value={shareLink} style={{ flex: 1, minWidth: 220 }} onFocus={(e) => e.target.select()} />
+                <button onClick={() => { navigator.clipboard?.writeText(shareLink); }}>Copy link</button>
+              </div>
+            </div>
+          )}
           <div className="row" style={{ marginTop: 14 }}>
             {r.round === 0 && me < 0 && (
               <>
