@@ -10,8 +10,9 @@ const PARENT = process.env.NEXT_PUBLIC_ENS_PARENT || "bishii.eth";
 const ZERO = "0x0000000000000000000000000000000000000000";
 const chain = {
   id: Number(process.env.NEXT_PUBLIC_CHAIN_ID),
-  name: "bishi",
-  nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+  name: Number(process.env.NEXT_PUBLIC_CHAIN_ID) === 5042002 ? "Arc Testnet" : "Localnet",
+  // Arc pays gas in USDC (native, 18 decimals); the ERC-20 USDC interface the contract uses has 6.
+  nativeCurrency: Number(process.env.NEXT_PUBLIC_CHAIN_ID) === 5042002 ? { name: "USDC", symbol: "USDC", decimals: 18 } : { name: "ETH", symbol: "ETH", decimals: 18 },
   rpcUrls: { default: { http: [process.env.NEXT_PUBLIC_RPC || "http://127.0.0.1:8545"] } },
 };
 const pc = createPublicClient({ chain, transport: http() });
@@ -134,7 +135,13 @@ export default function Home() {
           {!wallet ? <button onClick={connect}>Connect wallet</button> : <span className="pill mono">{wallet.slice(0, 6)}…{wallet.slice(-4)} · <b className="acc">{usd(bal)}</b></span>}
           {wallet && !human && <button className="hot" onClick={startVerify}>◉ Verify with World ID</button>}
           {human && <span className="pill ok">◉ verified human</span>}
-          {wallet && <button className="ghost" onClick={async () => { await tx(USDC, USDC_ABI, "mint", [wallet, parseUnits("1000", 6)], "minted $1000 test USDC"); await tx(USDC, USDC_ABI, "approve", [BISHI, maxUint256], "USDC approved"); }}>+ test USDC</button>}
+          {wallet && chain.id === 31337 && <button className="ghost" onClick={async () => { await tx(USDC, USDC_ABI, "mint", [wallet, parseUnits("1000", 6)], "minted $1000 test USDC"); await tx(USDC, USDC_ABI, "approve", [BISHI, maxUint256], "USDC approved"); }}>+ test USDC</button>}
+          {wallet && chain.id !== 31337 && (
+            <>
+              <a className="pill" href="https://faucet.circle.com" target="_blank" rel="noreferrer">Get testnet USDC ↗</a>
+              <button className="ghost" onClick={() => tx(USDC, USDC_ABI, "approve", [BISHI, maxUint256], "USDC approved")}>Approve USDC</button>
+            </>
+          )}
         </div>
       </div>
 
