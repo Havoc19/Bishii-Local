@@ -6,7 +6,7 @@ import { BISHI_ABI, USDC_ABI } from "../lib/abi";
 
 const BISHI = process.env.NEXT_PUBLIC_BISHI;
 const USDC = process.env.NEXT_PUBLIC_USDC;
-const PARENT = process.env.NEXT_PUBLIC_ENS_PARENT || "bishi.eth";
+const PARENT = process.env.NEXT_PUBLIC_ENS_PARENT || "bishii.eth";
 const ZERO = "0x0000000000000000000000000000000000000000";
 const chain = {
   id: Number(process.env.NEXT_PUBLIC_CHAIN_ID),
@@ -212,7 +212,7 @@ function Train() {
 
 const STEPS = [
   { i: "◉", t: "Prove you're human", d: "World ID. One person, one seat. No bots, no fake bidders." },
-  { i: "🚆", t: "Board a table", d: "Pick a room like bkc.bishi.eth. Some need a deposit or a guarantor." },
+  { i: "🚆", t: "Board a table", d: "Pick a room like bkc.bishii.eth. Some need a deposit or a guarantor." },
   { i: "💸", t: "Pay & bid", d: "Everyone pays each round. Need cash early? Bid a discount for the pot." },
   { i: "🛡", t: "Winners are backed", d: "You take out only what's backed. Run away and the guarantor pays the circle." },
 ];

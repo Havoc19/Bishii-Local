@@ -1,4 +1,4 @@
-export const metadata = { title: "Bishi Local", description: "Bishi with strangers, made safe." };
+export const metadata = { title: "Bishii Local", description: "Bishi with strangers, made safe." };
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap');

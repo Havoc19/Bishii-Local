@@ -1,4 +1,4 @@
-# 🚆 Bishi Local
+# 🚆 Bishii Local
 
 **Bishi with strangers, made safe.** Run a bidding savings circle (bishi / chit / committee) with people you don't know.
 Every seat is a unique real human (World ID), every room has a name and a track record (ENSv2), and every winner
@@ -21,7 +21,7 @@ Built at ETHGlobal Mumbai 2026.
 
 | Who | What they do | What they risk / earn |
 |---|---|---|
-| **Foreman** | Creates a room `bkc.bishi.eth`, sets the rules | Earns a commission on every pot (max 5%); their ENS name carries their record |
+| **Foreman** | Creates a room `bkc.bishii.eth`, sets the rules | Earns a commission on every pot (max 5%); their ENS name carries their record |
 | **Member** | Joins a room, pays each round, bids a discount to get the pot early | Bid discount is paid as dividends to the patient members |
 | **Guarantor** | A *different* verified human who backs a member's seat | Locks a stake, earns a fee on every instalment that member pays |
 
@@ -66,7 +66,7 @@ Their **World ID is flagged forever**: a new wallet carries the same World ID nu
 | Sponsor / prize | Its job | Without it |
 |---|---|---|
 | **World: Best Use of IDKit** | One seat per human; guarantor must be a different human; defaulter can't return with a new wallet | One person fills a room with fake bidders, guarantees themselves, and resets bad history with a fresh wallet |
-| **ENS: Best Use of ENSv2** | `bkc.bishi.eth` is the room/foreman; `riya.bkc.bishi.eth` is a seat; text records hold the rules and record | Rooms are anonymous numbers; nobody can check a foreman's history before trusting them |
+| **ENS: Best Use of ENSv2** | `bkc.bishii.eth` is the room/foreman; `riya.bkc.bishii.eth` is a seat; text records hold the rules and record | Rooms are anonymous numbers; nobody can check a foreman's history before trusting them |
 | **Arc: Advanced Stablecoin Logic** | USDC escrow, bid auction, dividend splits, commission and guarantor fees, held-back payouts, default handling | No dollar-stable money for savings |
 
 **Credential choice (World):** `proofOfHuman` (Orb), because real money and one-seat-per-human need the strongest
@@ -96,9 +96,9 @@ uniqueness. The demo uses World's simulator in `staging`.
     │      └──────────────────────────────────────┘
 ┌───▼─────────────────────────────────────────┐
 │ Sepolia: ENSv2                               │
-│ bishi.eth                                    │
-│  └ bkc.bishi.eth          room / foreman     │
-│     └ riya.bkc.bishi.eth  a seat → wallet    │
+│ bishii.eth                                    │
+│  └ bkc.bishii.eth          room / foreman     │
+│     └ riya.bkc.bishii.eth  a seat → wallet    │
 └──────────────────────────────────────────────┘
 ```
 
@@ -116,11 +116,11 @@ uniqueness. The demo uses World's simulator in `staging`.
 1. Connect wallet → Verify with World ID.
 2. Create room: name `bkc`, instalment, members, round length, max discount, commission, guarantor fee,
    deposit on/off, backing type. The page shows the room's safety level live.
-3. `bkc.bishi.eth` is created and starts building a record.
+3. `bkc.bishii.eth` is created and starts building a record.
 
 **Member**
 1. Verify with World ID → pick a room from the departures board.
-2. Join with a seat name (`riya` → `riya.bkc.bishi.eth`). If the room needs a deposit, it is locked now.
+2. Join with a seat name (`riya` → `riya.bkc.bishii.eth`). If the room needs a deposit, it is locked now.
 3. If the room needs backing, send the room link to a guarantor.
 4. When all seats are filled and backed, the room departs. Each round: **Pay**, optionally **Bid** with the slider,
    which shows *"you get now"* vs *"held"* before you commit.
@@ -144,7 +144,7 @@ uniqueness. The demo uses World's simulator in `staging`.
 ## 7. Demo script (3 min)
 
 1. "Bishi runs on trust between people who know each other. We made it work between strangers."
-2. Foreman creates `bkc.bishi.eth` (full guarantor, 4 seats, 2-minute rounds).
+2. Foreman creates `bkc.bishii.eth` (full guarantor, 4 seats, 2-minute rounds).
 3. Judges verify with World ID and take seats; guarantors back them.
 4. Round 1: a judge bids 10%. The slider shows $70.40 now, $0 held. Close round: payout + dividends land.
 5. Round 2: the winner doesn't pay. Close round: their guarantor's stake covers the circle, and their World ID is flagged.
@@ -166,7 +166,7 @@ npm install && npm run dev                     # http://localhost:3000
 npm install -g "https://pkg.pr.new/ensdomains/ens-cli/@ensdomains/cli@main"   # for /api/ens
 ```
 
-ENS setup (once): register `bishi.eth` on ENSv2 Sepolia with the `ens` CLI, give it a resolver and subregistry,
+ENS setup (once): register `bishii.eth` on ENSv2 Sepolia with the `ens` CLI, give it a resolver and subregistry,
 and put that wallet's key in `ENS_PK`.
 
 ## 9. Known limits (honest)

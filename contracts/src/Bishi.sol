@@ -13,7 +13,7 @@ contract Bishi {
 
     struct Room {
         address foreman;
-        string name; // ENS label, e.g. "bkc" -> bkc.bishi.eth
+        string name; // ENS label, e.g. "bkc" -> bkc.bishii.eth
         uint256 instalment;
         uint8 size;
         uint32 roundLen;
