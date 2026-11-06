@@ -165,7 +165,7 @@ export default function Home() {
             <button className="ghost" onClick={disconnect}>Disconnect</button>
           </>}
           {wallet && !human && <button className="hot" onClick={startVerify}>◉ Verify with World ID</button>}
-          {human && <span className="pill ok">◉ verified human</span>}
+          {human && <button className="ghost" title="Verify again with a different World ID identity" onClick={startVerify} style={{ color: "var(--ok)", borderColor: "rgba(61,255,168,.4)" }}>◉ verified human · re-verify</button>}
           {wallet && chain.id === 31337 && <button className="ghost" onClick={async () => { await tx(USDC, USDC_ABI, "mint", [wallet, parseUnits("1000", 6)], "minted $1000 test USDC"); await tx(USDC, USDC_ABI, "approve", [BISHI, maxUint256], "USDC approved"); }}>+ test USDC</button>}
           {wallet && chain.id !== 31337 && (
             <>
