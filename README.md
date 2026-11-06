@@ -11,6 +11,7 @@ Built at ETHGlobal Mumbai 2026.
 
 | What | Where |
 |---|---|
+| **Live app** | **https://bishii-local.vercel.app** |
 | Bishi contract, deployed from Arc Studio (Arc Testnet, chain 5042002) | [`0x99b422d6c1f28f1aafd0486b10cb3f98b79caa87`](https://explorer.testnet.arc.io/address/0x99b422d6c1f28f1aafd0486b10cb3f98b79caa87) |
 | Same contract, deployed with Foundry (backup) | [`0xB5229591B13B044c6c34C02628036104FC016421`](https://testnet.arcscan.app/address/0xB5229591B13B044c6c34C02628036104FC016421) |
 | USDC (Arc native, 6-decimal ERC-20 interface) | `0x3600000000000000000000000000000000000000` |
