@@ -399,12 +399,26 @@ function Circle({ r, seats, me, now }) {
             {s?.won && <circle cx={x} cy={y} r="30" fill="none" stroke="#3dffa8" strokeWidth="2" strokeDasharray="2 4" />}
             <circle cx={x} cy={y} r="24" fill="#0d0d14" stroke={col} strokeWidth={i === me ? 4 : 2.5} style={{ filter: s ? `drop-shadow(0 0 10px ${col})` : "none" }} />
             <text x={x} y={y + 5} textAnchor="middle" fill={s ? "#fff" : "#55556a"} fontSize="14" fontWeight="700">{s ? (s.defaulted ? "✕" : s.won ? "★" : i) : "+"}</text>
-            {backed && (
-              <g style={{ transformOrigin: `${x}px ${y}px`, animation: `rot ${6 + i}s linear infinite` }}>
-                <circle cx={x + 34} cy={y} r="8" fill="#0d0d14" stroke="#22e4ff" strokeWidth="1.5" />
-                <text x={x + 34} y={y + 3.5} textAnchor="middle" fontSize="9">🛡</text>
-              </g>
-            )}
+            {backed && (() => { // guarantor sits just outside the seat, tied to it
+              const gx = C + (R + 46) * Math.cos(a), gy = C + (R + 46) * Math.sin(a);
+              return (
+                <g>
+                  <line x1={x} y1={y} x2={gx} y2={gy} stroke="#22e4ff" strokeWidth="2" style={{ filter: "drop-shadow(0 0 4px #22e4ff)" }} />
+                  <path d={`M ${gx} ${gy - 13} l 11 4 v 7 c 0 7 -5 11 -11 14 c -6 -3 -11 -7 -11 -14 v -7 z`} fill="#0b2a33" stroke="#22e4ff" strokeWidth="2" style={{ filter: "drop-shadow(0 0 8px #22e4ff)" }} />
+                  <text x={gx} y={gy + 5} textAnchor="middle" fill="#22e4ff" fontSize="10" fontWeight="700">✓</text>
+                </g>
+              );
+            })()}
+            {s && !backed && r.backing > 0 && (() => { // empty shield: this seat still needs a guarantor
+              const gx = C + (R + 46) * Math.cos(a), gy = C + (R + 46) * Math.sin(a);
+              return (
+                <g className="pulse">
+                  <line x1={x} y1={y} x2={gx} y2={gy} stroke="#ffc21a" strokeWidth="1.5" strokeDasharray="3 4" />
+                  <path d={`M ${gx} ${gy - 13} l 11 4 v 7 c 0 7 -5 11 -11 14 c -6 -3 -11 -7 -11 -14 v -7 z`} fill="none" stroke="#ffc21a" strokeWidth="2" strokeDasharray="4 3" />
+                  <text x={gx} y={gy + 5} textAnchor="middle" fill="#ffc21a" fontSize="11" fontWeight="700">?</text>
+                </g>
+              );
+            })()}
             {s && active && s.paidRound === r.round && !s.defaulted && <circle cx={x + 17} cy={y - 17} r="6" fill="#3dffa8" />}
             {i === me && <text x={x} y={y + 42} textAnchor="middle" fill="#ffc21a" fontSize="10" letterSpacing="2">YOU</text>}
           </g>
@@ -452,6 +466,9 @@ function Room({ id, r, seats, wallet, now, b, ens, celebrate }) {
           <span className="pill">{BICON[r.backing]} {BACKING[r.backing]}{r.backing === 1 ? ` ${usd(r.guarantorAmount)}` : ""}</span>
           {r.deposit && <span className="pill">💰 deposit</span>}
           <span className="pill">max bid {r.maxBidBps / 100}%</span>
+          {wallet && seats.some((x) => x.guarantor.toLowerCase() === wallet.toLowerCase()) && (
+            <span className="pill cy" style={{ borderColor: "var(--cyan)" }}>🛡 You guarantee seat {seats.findIndex((x) => x.guarantor.toLowerCase() === wallet.toLowerCase())}</span>
+          )}
         </div>
       </div>
 
@@ -465,7 +482,7 @@ function Room({ id, r, seats, wallet, now, b, ens, celebrate }) {
                 <span style={{ width: 10, height: 10, borderRadius: 3, background: s.defaulted ? "#ff4d5e" : COLORS[i], boxShadow: `0 0 8px ${COLORS[i]}` }} />
                 <span>seat {i}{i === me ? " (you)" : ""}</span>
                 <span className="mut">{s.member.slice(0, 6)}…</span>
-                {s.guarantor !== ZERO && <span className="cy">🛡 backed {usd(s.stake)}</span>}
+                {s.guarantor !== ZERO && <span className="cy">🛡 backed by {s.guarantor.slice(0, 6)}…{s.guarantor.slice(-4)} · {usd(s.stake)}{wallet && s.guarantor.toLowerCase() === wallet.toLowerCase() ? " (you)" : ""}</span>}
                 {r.backing > 0 && s.guarantor === ZERO && <span className="acc">⚠️ needs guarantor</span>}
                 {s.deposit > 0n && <span className="acc">💰 {usd(s.deposit)}</span>}
                 {s.held > 0n && <span className="pk">⏳ {usd(s.held)}</span>}
