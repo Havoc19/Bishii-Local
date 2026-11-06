@@ -428,10 +428,102 @@ function Circle({ r, seats, me, now }) {
   );
 }
 
+
+// On-chain story of one room: every event, newest first. Big moments (win, default) pop a splash.
+function useRoomStory(id) {
+  const [events, setEvents] = useState([]);
+  const [splash, setSplash] = useState(null);
+  const seen = useRef(null);
+  useEffect(() => {
+    let live = true;
+    async function poll() {
+      try {
+        const latest = await pc.getBlockNumber();
+        const logs = await pc.getContractEvents({ address: BISHI, abi: BISHI_ABI, fromBlock: latest > 9000n ? latest - 9000n : 0n, toBlock: latest });
+        const mine = logs.filter((l) => l.args && l.args.id !== undefined && l.args.id === BigInt(id));
+        if (!live) return;
+        if (seen.current !== null) {
+          const fresh = mine.filter((l) => `${l.blockNumber}-${l.logIndex}` > seen.current);
+          const big = [...fresh].reverse().find((l) => l.eventName === "Won" || l.eventName === "Defaulted");
+          if (big) setSplash(big);
+        }
+        if (mine.length) seen.current = mine.map((l) => `${l.blockNumber}-${l.logIndex}`).sort().pop();
+        else if (seen.current === null) seen.current = "";
+        setEvents(mine.slice().reverse());
+      } catch {}
+    }
+    poll();
+    const t = setInterval(poll, 4000);
+    return () => { live = false; clearInterval(t); };
+  }, [id]);
+  useEffect(() => { if (!splash) return; const t = setTimeout(() => setSplash(null), 5200); return () => clearTimeout(t); }, [splash]);
+  return { events, splash };
+}
+
+function line(e) {
+  const a = e.args, seat = a.seat !== undefined ? `seat ${a.seat}` : "";
+  switch (e.eventName) {
+    case "RoomCreated": return ["🚉", `Room ${a.name}.${PARENT} opened`, "acc"];
+    case "Joined": return ["🎟", `${seat} boarded (${a.member.slice(0, 6)}…)`, ""];
+    case "Guaranteed": return ["🛡", `${seat} backed by ${a.guarantor.slice(0, 6)}… with ${usd(a.stake)}`, "cy"];
+    case "Started": return ["🚆", "All aboard. The circle departed!", "ok"];
+    case "Paid": return ["🟢", `${seat} paid round ${a.round}${a.released > 0n ? ` · ${usd(a.released)} unlocked` : ""}`, ""];
+    case "Bid": return ["💸", `${seat} bids ${Number(a.bps) / 100}% off to take the pot`, "acc"];
+    case "Won": return ["🏆", `${seat} took ${usd(a.now_)} now${a.held > 0n ? `, ${usd(a.held)} held` : ""} · others +${usd(a.dividendEach)} each`, "ok"];
+    case "Defaulted": return ["🚨", `${seat} ran! ${usd(a.seized)} of backing seized to pay the circle · flagged forever`, "bad"];
+    case "Finished": return ["🏁", "Circle complete. Deposits and stakes returned.", "ok"];
+    default: return ["•", e.eventName, "mut"];
+  }
+}
+
+function Story({ events }) {
+  return (
+    <div style={{ marginTop: 18 }}>
+      <h2>📜 Live story · straight from the chain</h2>
+      <div className="story">
+        {events.length === 0 && <div className="mut">Nothing yet. Events appear here the moment they land on Arc.</div>}
+        {events.slice(0, 14).map((e) => {
+          const [icon, text, c] = line(e);
+          return (
+            <div key={`${e.transactionHash}-${e.logIndex}`} className={`ev ${c}`}>
+              <span className="ico">{icon}</span>
+              <span>{text}</span>
+              <a className="mut" href={`https://explorer.testnet.arc.io/tx/${e.transactionHash}`} target="_blank" rel="noreferrer">tx ↗</a>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function Splash({ e }) {
+  if (!e) return null;
+  const a = e.args;
+  if (e.eventName === "Won")
+    return (
+      <div className="splash win">
+        <div className="coins">{Array.from({ length: 18 }).map((_, i) => <i key={i} style={{ left: `${10 + Math.random() * 80}%`, animationDelay: `${Math.random() * 0.8}s` }}>🪙</i>)}</div>
+        <div className="big">🏆 Seat {a.seat} takes the pot</div>
+        <div className="sub"><b className="ok">{usd(a.now_)}</b> now{a.held > 0n ? <> · <b className="acc">{usd(a.held)}</b> held until they keep paying</> : null}</div>
+        <div className="sub">Everyone else gets <b className="pk">+{usd(a.dividendEach)}</b> for waiting</div>
+      </div>
+    );
+  return (
+    <div className="splash bad">
+      <div className="big">🚨 Seat {a.seat} ran with the money</div>
+      <div className="sub">🛡 Backing absorbed it: <b className="cy">{usd(a.seized)}</b> seized, the circle still gets paid</div>
+      <div className="stamp">FLAGGED FOREVER</div>
+      <div className="sub mut">New wallet, same human. No escape.</div>
+    </div>
+  );
+}
+
 function Room({ id, r, seats, wallet, now, b, ens, celebrate }) {
   const [bps, setBps] = useState(1000);
   const [seatName, setSeatName] = useState("");
   const wonRef = useRef(null);
+  const { events, splash } = useRoomStory(id);
   const me = seats.findIndex((s) => wallet && s.member.toLowerCase() === wallet.toLowerCase());
   const stakeFor = r.backing === 2 ? BigInt(r.size - 1) * r.instalment : r.guarantorAmount;
   const shareLink = typeof window !== "undefined" ? `${window.location.origin}/?room=${id}&seat=${me}` : "";
@@ -472,6 +564,7 @@ function Room({ id, r, seats, wallet, now, b, ens, celebrate }) {
         </div>
       </div>
 
+      <Splash e={splash} />
       <div className="cap" style={{ fontSize: 15, marginTop: 12 }}>{narrate(r, seats, now)}</div>
       <div className="stage" style={{ marginTop: 10 }}>
         <Circle r={r} seats={seats} me={me} now={now} />
@@ -542,6 +635,7 @@ function Room({ id, r, seats, wallet, now, b, ens, celebrate }) {
           )}
         </div>
       </div>
+      <Story events={events} />
     </div>
   );
 }

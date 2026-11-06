@@ -99,6 +99,23 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;heigh
 .table:hover{transform:translateY(-5px);border-color:rgba(255,61,139,.5);box-shadow:0 24px 60px -30px rgba(255,61,139,.8)}
 .table.sel{border-color:var(--acc)}
 .cap{margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.04);border-left:3px solid var(--acc);font-size:13px;line-height:1.45}
+.story{display:flex;flex-direction:column;gap:6px;max-height:320px;overflow:auto}
+.ev{display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid var(--line);font-size:13px;animation:in .4s both}
+.ev .ico{font-size:16px;width:22px;text-align:center}.ev a{margin-left:auto;font-size:11px;text-decoration:none}
+.ev.ok{border-color:rgba(61,255,168,.35)}.ev.bad{border-color:rgba(255,77,94,.5);background:rgba(255,77,94,.08)}.ev.acc{border-color:rgba(255,194,26,.3)}.ev.cy{border-color:rgba(34,228,255,.35)}
+.splash{position:fixed;inset:0;z-index:70;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;
+ background:radial-gradient(circle at center,rgba(7,7,12,.75),rgba(7,7,12,.95));backdrop-filter:blur(6px);animation:splashIn .35s both, splashOut .5s 4.7s both;pointer-events:none}
+@keyframes splashIn{from{opacity:0;transform:scale(1.08)}}@keyframes splashOut{to{opacity:0}}
+.splash .big{font-size:clamp(28px,5vw,54px);font-weight:700;letter-spacing:-.02em;animation:pop .6s cubic-bezier(.3,1.6,.5,1) both}
+.splash .sub{font-size:clamp(15px,2vw,20px)}
+.splash.win .big{background:linear-gradient(90deg,var(--acc),var(--ok));-webkit-background-clip:text;background-clip:text;color:transparent}
+.splash.bad{background:radial-gradient(circle at center,rgba(80,0,10,.7),rgba(7,7,12,.96));animation:splashIn .35s both, shake .5s .1s 2, splashOut .5s 4.7s both}
+.splash.bad .big{color:var(--bad);text-shadow:0 0 30px rgba(255,77,94,.8)}
+.stamp{margin-top:10px;padding:10px 22px;border:4px solid var(--bad);color:var(--bad);font:700 clamp(22px,4vw,40px) 'JetBrains Mono',monospace;letter-spacing:.12em;transform:rotate(-8deg);animation:stamp .5s .6s cubic-bezier(.3,1.8,.5,1) both;box-shadow:0 0 40px rgba(255,77,94,.5)}
+@keyframes stamp{from{opacity:0;transform:rotate(-8deg) scale(2.4)}}
+@keyframes pop{from{opacity:0;transform:scale(.6)}}
+@keyframes shake{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+.coins{position:absolute;inset:0;overflow:hidden}.coins i{position:absolute;top:-40px;font-size:28px;font-style:normal;animation:fall 2.6s ease-in forwards}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .stat{padding:12px;border-radius:14px;background:rgba(0,0,0,.35);border:1px solid var(--line)}
 .stat b{display:block;font-size:20px;font-family:'JetBrains Mono',monospace}
