@@ -99,9 +99,12 @@ export default function Home() {
   async function tx(address, abi, functionName, args = [], label = functionName) {
     try {
       const wc = createWalletClient({ account: wallet, chain, transport: custom(window.ethereum) });
-      const hash = await wc.writeContract({ address, abi, functionName, args });
+      // Simulate first: a bad input shows the contract's own reason instead of a silent on-chain revert.
+      const { request } = await pc.simulateContract({ account: wallet, address, abi, functionName, args });
+      const hash = await wc.writeContract(request);
       say(`⏳ ${label}…`);
-      await pc.waitForTransactionReceipt({ hash });
+      const rc = await pc.waitForTransactionReceipt({ hash });
+      if (rc.status !== "success") throw new Error("transaction reverted on-chain");
       say(`✅ ${label}`);
       await load();
       return true;
@@ -113,7 +116,13 @@ export default function Home() {
   const b = (fn, args, label) => tx(BISHI, BISHI_ABI, fn, args, label);
 
   async function ens(label, parent, texts) {
-    const r = await fetch("/api/ens", { method: "POST", body: JSON.stringify({ label, parent, owner: wallet, texts }) }).then((r) => r.json()).catch(() => ({ error: "offline" }));
+    say(`🪪 Writing ENS name ${label}.${parent || PARENT}…`);
+    let r;
+    for (let i = 0; i < 4; i++) { // the RPC can lag a few seconds behind the tx we just mined
+      r = await fetch("/api/ens", { method: "POST", body: JSON.stringify({ label, parent, owner: wallet, texts }) }).then((r) => r.json()).catch(() => ({ error: "offline" }));
+      if (r.error !== "not on-chain") break;
+      await new Promise((ok) => setTimeout(ok, 3000));
+    }
     say(r.ok ? `🪪 ENS ${r.name} is live` : `⚠️ ENS: ${r.error}`);
   }
 
@@ -535,8 +544,8 @@ function Create({ b, ens, disabled, roomCount }) {
           <div className="row" style={{ marginTop: 14 }}>
             <label>Per round ($)<input value={f.instalment} onChange={set("instalment")} size={5} /></label>
             <label>Round (sec)<input value={f.roundLen} onChange={set("roundLen")} size={5} /></label>
-            <label>Max bid %<input value={f.maxBid} onChange={set("maxBid")} size={3} /></label>
-            <label>Guarantor fee %<input value={f.gFee} onChange={set("gFee")} size={3} /></label>
+            <label>Max bid % (≤30)<input type="number" min="0" max="30" value={f.maxBid} onChange={(e) => setF({ ...f, maxBid: Math.min(30, Math.max(0, Number(e.target.value))) })} style={{ width: 70 }} /></label>
+            <label>Guarantor fee % (≤10)<input type="number" min="0" max="10" value={f.gFee} onChange={(e) => setF({ ...f, gFee: Math.min(10, Math.max(0, Number(e.target.value))) })} style={{ width: 70 }} /></label>
           </div>
           <label style={{ marginTop: 14 }}>Members
             <div className="seg">{[4, 6, 8, 10].map((n) => <button key={n} className={Number(f.size) === n ? "on" : ""} onClick={() => setF({ ...f, size: n })}>{n}</button>)}</div>
