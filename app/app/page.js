@@ -72,10 +72,24 @@ export default function Home() {
 
   useEffect(() => {
     if (!window.ethereum) return;
-    const h = (a) => setWallet(a[0] || null);
+    const h = (a) => { setHuman(null); setBal(0n); setWallet(a[0] || null); };
     window.ethereum.on?.("accountsChanged", h);
     return () => window.ethereum.removeListener?.("accountsChanged", h);
   }, []);
+
+  // Let MetaMask show its account picker, so a different account (another person in the demo) can use the site.
+  async function switchWallet() {
+    try {
+      await window.ethereum.request({ method: "wallet_requestPermissions", params: [{ eth_accounts: {} }] });
+      const [a] = await window.ethereum.request({ method: "eth_accounts" });
+      setHuman(null); setBal(0n); setWallet(a || null);
+      if (a) say(`⇄ Switched to ${a.slice(0, 6)}…${a.slice(-4)}`);
+    } catch (e) { say(`❌ Switch cancelled`); }
+  }
+  async function disconnect() {
+    try { await window.ethereum.request({ method: "wallet_revokePermissions", params: [{ eth_accounts: {} }] }); } catch {}
+    setWallet(null); setHuman(null); setBal(0n); say("Disconnected");
+  }
 
   async function connect() {
     if (!window.ethereum) return say("❌ Install a wallet (MetaMask / Rabby)");
@@ -145,7 +159,11 @@ export default function Home() {
       <div className="row" style={{ justifyContent: "space-between" }}>
         <span className="pill live mono">LIVE · {chain.id === 31337 ? "localnet" : "Arc testnet"}</span>
         <div className="row">
-          {!wallet ? <button onClick={connect}>Connect wallet</button> : <span className="pill mono">{wallet.slice(0, 6)}…{wallet.slice(-4)} · <b className="acc">{usd(bal)}</b></span>}
+          {!wallet ? <button onClick={connect}>Connect wallet</button> : <>
+            <span className="pill mono">{wallet.slice(0, 6)}…{wallet.slice(-4)} · <b className="acc">{usd(bal)}</b></span>
+            <button className="ghost" onClick={switchWallet}>⇄ Switch wallet</button>
+            <button className="ghost" onClick={disconnect}>Disconnect</button>
+          </>}
           {wallet && !human && <button className="hot" onClick={startVerify}>◉ Verify with World ID</button>}
           {human && <span className="pill ok">◉ verified human</span>}
           {wallet && chain.id === 31337 && <button className="ghost" onClick={async () => { await tx(USDC, USDC_ABI, "mint", [wallet, parseUnits("1000", 6)], "minted $1000 test USDC"); await tx(USDC, USDC_ABI, "approve", [BISHI, maxUint256], "USDC approved"); }}>+ test USDC</button>}
