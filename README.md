@@ -120,6 +120,32 @@ uniqueness. The demo uses World's simulator in `staging`.
   that room's foreman / a seated member) and then writes the ENSv2 subname and text records on Sepolia via the `ens` CLI.
 - **Rounds**: `closeRound` can be called by anyone after the deadline. The backend holds no member money.
 
+### What happens when you verify with World ID
+
+```
+You (browser)          Backend (/api/verify)                 Arc contract
+─────────────          ─────────────────────                 ────────────
+1. Prove with World
+   App → proof
+2. Send proof ───────▶ 3. Ask World's API: "is this proof real?"
+                          World: ✅ valid, nullifier = 0x…
+                       4. Check the proof's signal is THIS wallet
+                          (a proof can't be reused for another wallet)
+                       5. Send tx as the verifier ───────────▶ registerHuman(wallet, keccak(nullifier))
+                                                               → emits HumanRegistered
+6. "◉ verified human" ◀───────────────────────────────────────
+```
+
+- **Why it's written on Arc:** the contract enforces the rules (one seat per human, guarantor ≠ member, defaulters
+  blocked) at the moment someone joins. A contract can only read data on its own chain, and World's verifier isn't
+  callable from Arc, so the backend checks the proof and writes the result into the contract.
+- **Only the verifier can write it:** `registerHuman` accepts calls only from the `verifier` address set at deploy,
+  so nobody can mark themselves human without passing World ID.
+- **The human ID** is `keccak256(nullifier)`. The nullifier is unique per person for our app and reveals nothing about
+  who they are. The same person with a new wallet gets the same nullifier, so the same human ID, so the same history.
+- **Defaults are flagged on Arc** (`flagged[human] = true`), not on World. World ID only proves uniqueness; the
+  reputation lives in our contract.
+
 ## 5. How people use it
 
 **Foreman**
