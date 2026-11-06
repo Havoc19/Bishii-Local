@@ -6,6 +6,15 @@ can only take out what is backed. The rest is held in USDC and released as they 
 
 Built at ETHGlobal Mumbai 2026.
 
+
+## Deployed
+
+| What | Where |
+|---|---|
+| Bishi contract (Arc Testnet, chain 5042002) | [`0xB5229591B13B044c6c34C02628036104FC016421`](https://testnet.arcscan.app/address/0xB5229591B13B044c6c34C02628036104FC016421) |
+| USDC (Arc native, 6-decimal ERC-20 interface) | `0x3600000000000000000000000000000000000000` |
+| Testnet USDC faucet | https://faucet.circle.com (Arc Testnet) |
+
 ---
 
 ## 1. Problem
